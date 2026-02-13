@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67b0454367714f04f9e347631e57aa99, type: 3}
+  m_Name: TodoData
+  m_EditorClassIdentifier: 
+  items:
+  - text: Add texts under PPE items
+    isCompleted: 1
+    assetGUIDs: []
+    gameObjectGlobalIds: []
+    gameObjectNames: []
+    gameObjectScenePaths: []
+  - text: Canvas and player placements
+    isCompleted: 1
+    assetGUIDs: []
+    gameObjectGlobalIds: []
+    gameObjectNames: []
+    gameObjectScenePaths: []
+  - text: Main Menu Navigation
+    isCompleted: 1
+    assetGUIDs: []
+    gameObjectGlobalIds: []
+    gameObjectNames: []
+    gameObjectScenePaths: []
+  - text: Annotations
+    isCompleted: 0
+    assetGUIDs: []
+    gameObjectGlobalIds: []
+    gameObjectNames: []
+    gameObjectScenePaths: []
+  - text: Setting Screen
+    isCompleted: 0
+    assetGUIDs: []
+    gameObjectGlobalIds: []
+    gameObjectNames: []
+    gameObjectScenePaths: []
+  - text: Web Dashboard Integration
+    isCompleted: 0
+    assetGUIDs: []
+    gameObjectGlobalIds: []
+    gameObjectNames: []
+    gameObjectScenePaths: []
+  - text: 'Audio '
+    isCompleted: 0
+    assetGUIDs: []
+    gameObjectGlobalIds: []
+    gameObjectNames: []
+    gameObjectScenePaths: []
