@@ -46,25 +46,25 @@ public class MainCanvas : MonoBehaviour
         panelTitle.text = title;
         panelDescription.text = description;
 
-        option1.gameObject.SetActive(true);
-        option2.gameObject.SetActive(true);
-        option3.gameObject.SetActive(true);
-        option4.gameObject.SetActive(true);
+        Transform[] optionTransforms = { option1, option2, option3, option4 };
 
-        option1.GetComponentInChildren<TextMeshProUGUI>().text = options[0];
-        option2.GetComponentInChildren<TextMeshProUGUI>().text = options[1];
-        option3.GetComponentInChildren<TextMeshProUGUI>().text = options[2];
-        option4.GetComponentInChildren<TextMeshProUGUI>().text = options[3];
+        for (int i = 0; i < optionTransforms.Length; i++)
+        {
+            if (options != null && i < options.Count)
+            {
+                optionTransforms[i].gameObject.SetActive(true);
+                optionTransforms[i].GetComponentInChildren<TextMeshProUGUI>().text = options[i];
 
-        option1.GetComponent<Button>().onClick.RemoveAllListeners();
-        option2.GetComponent<Button>().onClick.RemoveAllListeners();
-        option3.GetComponent<Button>().onClick.RemoveAllListeners();
-        option4.GetComponent<Button>().onClick.RemoveAllListeners();
-
-        option1.GetComponent<Button>().onClick.AddListener(() => onOptionSelected?.Invoke(0));
-        option2.GetComponent<Button>().onClick.AddListener(() => onOptionSelected?.Invoke(1));
-        option3.GetComponent<Button>().onClick.AddListener(() => onOptionSelected?.Invoke(2));
-        option4.GetComponent<Button>().onClick.AddListener(() => onOptionSelected?.Invoke(3));
+                Button btn = optionTransforms[i].GetComponent<Button>();
+                btn.onClick.RemoveAllListeners();
+                int index = i;
+                btn.onClick.AddListener(() => onOptionSelected?.Invoke(index));
+            }
+            else
+            {
+                optionTransforms[i].gameObject.SetActive(false);
+            }
+        }
     }
 
 

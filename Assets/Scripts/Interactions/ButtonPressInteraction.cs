@@ -20,8 +20,6 @@ public class ButtonPressInteraction : BaseInteraction
 
     public List<Transform> leftCableHands = new(), rightCableHands = new();
 
-    public ModuleMode moduleMode;
-
     void Awake()
     {
         acknowledgeObject = Resources.Load<GameObject>("Prefabs/AcknowledgeObject");
@@ -51,7 +49,7 @@ public class ButtonPressInteraction : BaseInteraction
     public override IEnumerator Process()
     {
 
-        if (moduleMode == ModuleMode.Training)
+        if (GameManager.Instance.moduleMode == ModuleMode.Training)
         {
             GuidingArrow.Instance.SetTarget(acknowledgeObjectTransform);
             Annotation.Instance.Annotate(acknowledgeObjectTransform, Vector3.up * 0.1f + Vector3.right * 0.1f + Vector3.forward * 0.1f, acknowledgeObjectTransform, Color.white, "Open Panel");
@@ -68,7 +66,7 @@ public class ButtonPressInteraction : BaseInteraction
                 ackObj.SetActive(false);
             });
             yield return new WaitUntil(() => isCheckAcknowledged);
-            if (moduleMode == ModuleMode.Training)
+            if (GameManager.Instance.moduleMode == ModuleMode.Training)
             {
                 GuidingArrow.Instance.ClearTarget();
                 Annotation.Instance.Annotate();
@@ -87,7 +85,7 @@ public class ButtonPressInteraction : BaseInteraction
             pokeHandAnim = handAnim.DOLocalMoveX(-29.64f, 1f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
         }
 
-        if (moduleMode == ModuleMode.Training)
+        if (GameManager.Instance.moduleMode == ModuleMode.Training)
         {
             GuidingArrow.Instance.SetTarget(button.transform);
             Annotation.Instance.Annotate(button.transform, Vector3.up * 0.1f + Vector3.right * 0.1f + Vector3.forward * 0.1f, button.transform, Color.white, "Press Button");
@@ -95,7 +93,7 @@ public class ButtonPressInteraction : BaseInteraction
 
         yield return new WaitUntil(() => buttonPressed);
 
-        if (moduleMode == ModuleMode.Training)
+        if (GameManager.Instance.moduleMode == ModuleMode.Training)
         {
             GuidingArrow.Instance.ClearTarget();
             Annotation.Instance.Annotate();

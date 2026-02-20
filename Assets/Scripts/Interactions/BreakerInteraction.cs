@@ -10,8 +10,6 @@ public class BreakerInteraction : BaseInteraction
 
     public Action OnTrip, OnClose;
 
-    public ModuleMode moduleMode;
-
     void Awake()
     {
         lever = GetComponentInChildren<XRLeverNeutral>();
@@ -40,7 +38,7 @@ public class BreakerInteraction : BaseInteraction
 
     public override IEnumerator Process()
     {
-        if (moduleMode == ModuleMode.Training)
+        if (GameManager.Instance.moduleMode == ModuleMode.Training)
         {
             GuidingArrow.Instance.SetTarget(lever.handle.transform);
             Annotation.Instance.Annotate(lever.handle.transform, new Vector3(-0.3f, 0f, 0f), lever.handle.transform, Color.white, "Hold");
@@ -57,7 +55,7 @@ public class BreakerInteraction : BaseInteraction
         }
         lever.hoverEntered.AddListener((args) =>
         {
-            if (moduleMode == ModuleMode.Training)
+            if (GameManager.Instance.moduleMode == ModuleMode.Training)
             {
                 GuidingArrow.Instance.SetTarget(lever.handle.transform);
                 Annotation.Instance.Annotate(lever.handle.transform, new Vector3(-0.3f, 0f, 0f), lever.handle.transform, Color.white, "Rotate");
@@ -69,7 +67,7 @@ public class BreakerInteraction : BaseInteraction
 
         lever.hoverEntered.RemoveAllListeners();
 
-        if (moduleMode == ModuleMode.Training)
+        if (GameManager.Instance.moduleMode == ModuleMode.Training)
         {
             GuidingArrow.Instance.ClearTarget();
             Annotation.Instance.Annotate();
@@ -83,7 +81,7 @@ public class BreakerInteraction : BaseInteraction
 
     public void UpdateHighlights()
     {
-        if (moduleMode == ModuleMode.Assessment) return;
+        if (GameManager.Instance.moduleMode == ModuleMode.Assessment) return;
         "Updating Highlights".Print();
         Highlighter highlighter = GetComponentInChildren<Highlighter>();
         if (highlighter != null)

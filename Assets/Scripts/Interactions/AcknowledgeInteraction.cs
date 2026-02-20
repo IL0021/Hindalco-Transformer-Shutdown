@@ -14,7 +14,6 @@ public class AcknowledgeInteraction : BaseInteraction
     public bool skipButton = false;
     public GameObject pokeAnim;
 
-    public ModuleMode moduleMode;
     // public GameObject confirmationObject;
     void Awake()
     {
@@ -35,7 +34,7 @@ public class AcknowledgeInteraction : BaseInteraction
                 isCheckAcknowledged = true;
                 ackGrabInteractable.enabled = false;
             });
-            if (moduleMode == ModuleMode.Training)
+            if (GameManager.Instance.moduleMode == ModuleMode.Training)
             {
                 pokeHand = Instantiate(pokeAnim, acknowledgeObjectTransform);
                 pokeHand.transform.DOLocalMoveZ(0.2f, 1f).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo);
@@ -43,7 +42,7 @@ public class AcknowledgeInteraction : BaseInteraction
             }
             yield return new WaitUntil(() => isCheckAcknowledged);
             
-            if (moduleMode == ModuleMode.Training)
+            if (GameManager.Instance.moduleMode == ModuleMode.Training)
             {
                 GuidingArrow.Instance.ClearTarget();
                 Destroy(pokeHand);

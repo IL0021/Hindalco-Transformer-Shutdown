@@ -15,6 +15,8 @@ public class WristLocomotion : MonoBehaviour
     private bool isMovingForward = false;
     private bool isMovingBackward = false;
 
+    // public TriggerButton forwardButton, backwardButton;
+
     // public Button forwardButton;
     // public Button backwardButton;
 

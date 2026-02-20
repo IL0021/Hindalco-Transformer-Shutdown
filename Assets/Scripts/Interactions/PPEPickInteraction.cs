@@ -7,11 +7,13 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 public class PPEPickInteraction : BaseInteraction
 {
     public List<GameObject> ppeItems = new();
-    public ModuleMode moduleMode;
+
+    Material diffusion;
 
     public override IEnumerator Process()
     {
-
+        "Pick up PPE Kit".Print();
+        diffusion = Resources.Load<Material>("Diffusion");
         foreach (var item in ppeItems)
         {
             var interactable = item.GetComponent<XRBaseInteractable>();
@@ -20,14 +22,15 @@ public class PPEPickInteraction : BaseInteraction
                 interactable.hoverEntered.AddListener((args) =>
                 {
                     Debug.Log($"Picked up {item.name}");
-                    item.SetActive(false);
+                    // item.SetActive(false);
+                    StartCoroutine(DisablePatiently(item));
                 });
             }
-            if (moduleMode == ModuleMode.Training) interactable.enabled = false;
+            if (GameManager.Instance.moduleMode == ModuleMode.Training) interactable.enabled = false;
             item.SetActive(true);
         }
 
-        if (moduleMode == ModuleMode.Training)
+        if (GameManager.Instance.moduleMode == ModuleMode.Training)
         {
             foreach (var item in ppeItems)
             {
@@ -43,7 +46,7 @@ public class PPEPickInteraction : BaseInteraction
 
                 if (GuidingArrow.Instance != null) GuidingArrow.Instance.ClearTarget();
                 if (Annotation.Instance != null) Annotation.Instance.Annotate();
-                
+
                 yield return new WaitForSeconds(1f);
             }
         }
@@ -62,6 +65,26 @@ public class PPEPickInteraction : BaseInteraction
         "All items picked up".Print();
         FinishInteraction();
         GameManager.Instance.PlayNextInteraction();
-        GameManager.Instance.NextButton.gameObject.SetActive(false);
+        // GameManager.Instance.NextButton.gameObject.SetActive(false);
+    }
+
+
+    public IEnumerator DisablePatiently(GameObject item)
+    {
+        var renderers = item.GetComponentsInChildren<Renderer>();
+        Material matInstance = new Material(diffusion);
+        foreach (var renderer in renderers)
+        {
+            renderer.material = matInstance;
+        }
+        float timer = 0;
+        while(timer < 0.5f)
+        {
+            timer += Time.deltaTime;
+            matInstance.SetFloat("_Alpha", Mathf.Lerp(1,0, timer/2f));
+            yield return null;
+        }
+        matInstance.SetFloat("_Alpha", 0);
+        item.SetActive(false);
     }
 }

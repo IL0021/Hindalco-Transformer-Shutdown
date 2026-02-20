@@ -6,6 +6,7 @@ using System.Collections;
 using System;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class GameManager : MonoBehaviour
 {
@@ -29,10 +30,10 @@ public class GameManager : MonoBehaviour
     private BaseInteraction _activeInteraction;
     [Header("UI References")]
     public Canvas mainCanvas;
-    public GameObject welcomPanel, procedurePanel, finishedPanel;
+    public GameObject welcomePanel, procedurePanel, finishedPanel;
 
     public Button startProcedureButton, NextButton, HomeButton, Home;
-
+    public Transform stepIncomplete, movementButtons;
     public Action OnNextStepCalled;
     public GameStep currentStep;
 
@@ -40,6 +41,7 @@ public class GameManager : MonoBehaviour
     // private TextMeshProUGUI stepNumText, stepNameText, stepDescriptionText;
 
     public ModuleMode moduleMode;
+    public bool teleportationEnabled = false;
 
     private IEnumerator Start()
     {
@@ -56,6 +58,7 @@ public class GameManager : MonoBehaviour
             currentStep = steps[_currentStepIndex];
     }
 
+
     private void InitializeReferences()
     {
         if (MainCanvas.Instance != null)
@@ -68,6 +71,9 @@ public class GameManager : MonoBehaviour
         HomeButton = mainCanvas.transform.GetChildWithName("HomeButton").GetComponent<Button>();
         Home = mainCanvas.transform.GetChildWithName("Home").GetComponent<Button>();
         startProcedureButton = mainCanvas.transform.GetChildWithName("StartProcedureButton").GetComponent<Button>();
+
+        if (moduleMode == ModuleMode.Training)
+            stepIncomplete = mainCanvas.transform.GetChildWithName("StepIncomplete");
 
         // // Text
         // stepNumText = mainCanvas.transform.GetChildWithName("StepNum").GetComponent<TextMeshProUGUI>();
@@ -87,7 +93,7 @@ public class GameManager : MonoBehaviour
 
     private void StartProcedure()
     {
-        welcomPanel.SetActive(false);
+        welcomePanel.SetActive(false);
         procedurePanel.SetActive(true);
         OnNextStepCalled?.Invoke();
         PlayNextInteraction();
@@ -98,11 +104,36 @@ public class GameManager : MonoBehaviour
         if (currentStep != null && currentStep.completionCondition != null && !currentStep.completionCondition.IsCompleted())
         {
             Debug.Log("Current step not yet completed.");
+            if (moduleMode == ModuleMode.Training)
+                StartCoroutine(ShowNotCompletedMessage());
             return;
         }
-        // ToggleCanvasAnimation();
+
+        // todo: disable xr interaction with the objects in current step
+        if (currentStep != null)
+        {
+            foreach (var interactionData in currentStep.interactions)
+            {
+                if (interactionData.interaction != null)
+                {
+                    var interactables = interactionData.interaction.GetComponentsInChildren<XRBaseInteractable>(true);
+                    foreach (var interactable in interactables)
+                    {
+                        interactable.enabled = false;
+                    }
+                }
+            }
+        }
+
         PlayNextInteraction();
         NextButton.gameObject.SetActive(false);
+    }
+
+    private IEnumerator ShowNotCompletedMessage()
+    {
+        stepIncomplete.gameObject.SetActive(true);
+        yield return new WaitForSeconds(3f);
+        stepIncomplete.gameObject.SetActive(false);
     }
 
     public void PlayNextInteraction()
@@ -132,8 +163,8 @@ public class GameManager : MonoBehaviour
 
         _currentInteractionIndex = 0;
         _currentStepIndex++;
-        OnNextStepCalled?.Invoke();
 
+        OnNextStepCalled?.Invoke();
     }
 
     private void FinishProcedure()
@@ -153,6 +184,16 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning($"Skipping empty interaction at Step {_currentStepIndex}, Index {_currentInteractionIndex}");
             HandleInteractionComplete(null);
             return;
+        }
+
+        // Re-enable XR interactions for the current step's object
+        if (nextInteraction != null)
+        {
+            var interactables = nextInteraction.GetComponentsInChildren<XRBaseInteractable>(true);
+            foreach (var interactable in interactables)
+            {
+                interactable.enabled = true;
+            }
         }
 
         ConfigureInteraction(nextInteraction, interactionData);
@@ -175,114 +216,144 @@ public class GameManager : MonoBehaviour
             MainCanvas.Instance.transform.SetPositionAndRotation(interactionData.canvasTransform.position, interactionData.canvasTransform.rotation);
         }
 
+
+
         if (moduleMode == ModuleMode.Training)
+            UpdateTrainingUI(interactionData, stepIndex, interactionIndex);
+        else
+            UpdateAssessmentUI(interactionData, stepIndex, interactionIndex);
+    }
+
+    private void UpdateTrainingUI(GameInteraction interactionData, int stepIndex, int interactionIndex)
+    {
+        if (interactionData.interaction is TeleportInteraction teleportInteraction)
         {
-            if (interactionData.interaction is TeleportInteraction teleportInteraction)
+            // string text;
+            // if (teleportInteraction.teleportType == TeleportType.Location)
+            // {
+            //     text = (stepIndex == 0 && interactionIndex == 0)
+            //         ? $"First, you have to go to <color=blue>{interactionData.target}</color>."
+            //         : $"For the next step, you have to go to <color=blue>{interactionData.target}</color>.";
+            // }
+            // else
+            // {
+            //     text = $"Now you have to go to <color=blue>{interactionData.target}</color>.";
+            // }
+
+            MainCanvas.Instance.ShowSingleButtonPanel(interactionData.interactionName, interactionData.interactionDescription, $"Go to {interactionData.target}", () =>
             {
-                string teleportTypeText = "";
-                if (teleportInteraction.teleportType == TeleportType.Location)
-                {
-                    if (stepIndex == 0 && interactionIndex == 0)
-                        teleportTypeText = "First, you have to go to <color=blue>" + interactionData.target + "</color>.";
-                    else
-                        teleportTypeText = "For the next step, you have to go to <color=blue>" + interactionData.target + "</color>.";
-                }
-                else
-                {
-                    teleportTypeText = "Now you have to go to <color=blue>" + interactionData.target + "</color>.";
-                }
-                MainCanvas.Instance.ShowSingleButtonPanel(interactionData.interactionName, teleportTypeText, $"Go to {interactionData.target}", () =>
-                {
-                    StartCoroutine(_activeInteraction.Process());
-                    MainCanvas.Instance.option1.gameObject.SetActive(false);
-                });
+                StartCoroutine(_activeInteraction.Process());
+                MainCanvas.Instance.option1.gameObject.SetActive(false);
+            });
+        }
+        else if (interactionData.interaction is PPEPickInteraction ppe)
+        {
+            string buttonText = "Pick all required items to proceed";
+            "controll is here".Print();
+            MainCanvas.Instance.ShowSingleButtonPanel(interactionData.interactionName, interactionData.interactionDescription, buttonText, () =>
+            {
+                StartCoroutine(_activeInteraction.Process());
+                MainCanvas.Instance.option1.gameObject.SetActive(false);
+
+                teleportationEnabled = true;
+                // ToggleCanvasAnimation();
+            });
+        }
+        else if (interactionData.interaction is AcknowledgeInteraction ack)
+        {
+            StartCoroutine(_activeInteraction.Process());
+        }
+        else if (interactionData.interaction is MapInteraction map)
+        {
+            string buttonText = "Open Map";
+            if (map.buttonDict[interactionData.target] == null) buttonText = $"Go to {interactionData.target}";
+            MainCanvas.Instance.ShowSingleButtonPanel(interactionData.interactionName, interactionData.interactionDescription, buttonText, () =>
+            {
+                StartCoroutine(_activeInteraction.Process());
+                MainCanvas.Instance.option1.gameObject.SetActive(false);
+                // ToggleCanvasAnimation();
+            });
+        }
+        else
+        {
+            // string text = $"You are at <color=blue>{interactionData.target}</color>. {interactionData.interactionDescription}";
+            MainCanvas.Instance.ShowSingleButtonPanel(interactionData.interactionName, interactionData.interactionDescription, "Proceed to Interaction", () =>
+            {
+                StartCoroutine(_activeInteraction.Process());
+                MainCanvas.Instance.option1.gameObject.SetActive(false);
+                // ToggleCanvasAnimation();
+            });
+        }
+    }
+
+    public Transform arrowTarget;
+    [ContextMenu("Check Target")]
+    public void CheckTarget()
+    {
+        // PathDirector.instance.SetTarget(arrowTarget);
+    }
+    private void UpdateAssessmentUI(GameInteraction interactionData, int stepIndex, int interactionIndex)
+    {
+        string question;
+        List<string> options = new List<string>();
+        string correctAnswer = interactionData.target;
+
+        if (interactionData.interaction is TeleportInteraction teleportInteraction)
+        {
+            if (teleportInteraction.teleportType == TeleportType.Location)
+            {
+                question = (stepIndex == 0 && interactionIndex == 0)
+                    ? "For the first step, where do you want to go?"
+                    : "For the next step, where do you want to go?";
+
+                if (locations.Contains(interactionData.target))
+                    options = new List<string>(locations);
             }
             else
             {
-                string instructionText = "You are at " + interactionData.target + ". " + interactionData.interactionDescription;
-                MainCanvas.Instance.ShowSingleButtonPanel(interactionData.interactionName, instructionText, "Proceed to Interaction", () =>
-                {
-                    StartCoroutine(_activeInteraction.Process());
-                    MainCanvas.Instance.option1.gameObject.SetActive(false);
-
-                    ToggleCanvasAnimation();
-                });
+                question = "Where do you want to continue the procedure?";
+                options = new List<string> { interactionData.target, GenerateBusString(), GenerateBusString(), GenerateBusString() };
             }
         }
         else
         {
-            if (interactionData.interaction is TeleportInteraction teleportInteraction)
-            {
-                string teleportTypeText = "";
-                if (teleportInteraction.teleportType == TeleportType.Location)
-                {
-                    if (stepIndex == 0 && interactionIndex == 0)
-                        teleportTypeText = "For the first step, where do you want to go?";
-                    else
-                        teleportTypeText = "For the next step, where do you want to go?";
+            question = $"You are at <color=blue>{interactionData.target}</color>.\nWhat action do you want to perform?";
 
-                    if (locations.Contains(interactionData.target))
-                    {
-                        MainCanvas.Instance.ShowFourOptionPanel(
-                            "",
-                            teleportTypeText,
-                            locations.Randomize(),
-                            (selectedIndex) =>
-                            {
-                                if (locations[selectedIndex] == interactionData.target)
-                                {
-                                    //Correct option selected
-                                    "Correct option selected".Print();
-                                    MainCanvas.Instance.ResetPanel();
-                                    StartCoroutine(_activeInteraction.Process());
-                                }
-                                else
-                                {
-                                    "Incorrect option selected".Print();
-                                    //Incorrect option selected
-                                }
-                            });
-                    }
+            if (interactionData.interaction is BreakerInteraction || interactionData.interaction is RackInInteraction || interactionData.interaction is RackOutInteraction)
+            {
+                options = new List<string> { "Perform Rack In", "Perform Rack Out", "Set breaker to Trip position", "Set breaker to Close position" };
+                if (interactionData.interaction is RackInInteraction) correctAnswer = "Perform Rack In";
+                else if (interactionData.interaction is RackOutInteraction) correctAnswer = "Perform Rack Out";
+            }
+            else if (interactionData.interaction is PPEPickInteraction)
+            {
+                options = new List<string> { "Equip PPE items", "Reject PPE items" };
+            }
+            else if (interactionData.interaction is AcknowledgeInteraction)
+            {
+                if (interactionData.target.Contains("Alumina"))
+                    options = new List<string> { "Alumina Feeder #1", "Alumina Feeder #2", "Alumina Feeder #3", "Alumina Feeder #4" };
+                else if (interactionData.target.Contains("Check"))
+                    options = new List<string> { interactionData.target, "Perform Rack In", "Set breaker to Trip position", "Set breaker to Close position" };
+            }
+        }
+
+        if (options.Count > 0)
+        {
+            var randomizedOptions = options.Randomize();
+            MainCanvas.Instance.ShowFourOptionPanel("", question, randomizedOptions, (selectedIndex) =>
+            {
+                if (randomizedOptions[selectedIndex] == correctAnswer)
+                {
+                    "Correct option selected".Print();
+                    MainCanvas.Instance.ResetPanel();
+                    StartCoroutine(_activeInteraction.Process());
                 }
                 else
                 {
-                    teleportTypeText = "Which panel do you want to go?";
-                    List<string> options = new List<string>
-                        {
-                            interactionData.target,
-                            GenerateBusString(),
-                            GenerateBusString(),
-                            GenerateBusString()
-                        };
-                    MainCanvas.Instance.ShowFourOptionPanel(
-                        "",
-                        teleportTypeText,
-                        options.Randomize(),
-                        (selectedIndex) =>
-                        {
-                            if (options[selectedIndex] == interactionData.target)
-                            {
-                                //Correct option selected
-                                "Correct option selected".Print();
-                                MainCanvas.Instance.ResetPanel();
-                                StartCoroutine(_activeInteraction.Process());
-                            }
-                            else
-                            {
-                                "Incorrect option selected".Print();
-                                //Incorrect option selected
-                            }
-                        });
+                    "Incorrect option selected".Print();
                 }
-
-
-            }
-            else
-            {
-
-            }
-
-
+            });
         }
     }
     private static readonly System.Random _random = new System.Random();
@@ -309,7 +380,14 @@ public class GameManager : MonoBehaviour
         {
             foreach (var interaction in step.interactions)
             {
-                interaction.target.Print();
+                if (interaction.interaction is TeleportInteraction teleportInteraction)
+                {
+                    $"{interaction.target} : ".Print();
+                }
+                // if (interaction.target == "")
+                // {
+                //     $"{step.stepName} : {interaction.interactionName}".Print();
+                // }
             }
         }
     }
@@ -324,6 +402,10 @@ public class GameManager : MonoBehaviour
         else if (interaction is AcknowledgeInteraction ack)
         {
             ack.skipButton = _currentInteractionIndex == currentStep.interactions.Count - 1;
+        }
+        else if (interaction is MapInteraction map)
+        {
+            map.locationTarget = data.target;
         }
     }
 

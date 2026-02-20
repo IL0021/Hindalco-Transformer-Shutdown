@@ -4,6 +4,7 @@ using UnityEngine;
 public class GameInteraction 
 {
     public string interactionName;
+    [TextArea(5,10)]
     public string interactionDescription;
     public AudioClip interactionAudio;
     public BaseInteraction interaction;

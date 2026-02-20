@@ -3,51 +3,34 @@ using UnityEngine.Events;
 
 public class TransformGestureDetector : MonoBehaviour
 {
-    [Header("Setup")]
-    [Tooltip("Drag the Transform you attached to your palm here.")]
     [SerializeField] private Transform palmReference;
+    [Range(0f, 1f)][SerializeField] private float threshold = 0.7f;
 
-    [Header("Settings")]
-    [Tooltip("How strict is the alignment? (1.0 = Perfect, 0.7 = ~45 degrees off)")]
-    [Range(0f, 1f)]
-    [SerializeField] private float threshold = 0.7f;
-
-    [Header("Events")]
-    public UnityEvent OnGestureDetected; // Ray ON
-    public UnityEvent OnGestureLost;     // Ray OFF
+    public UnityEvent OnGestureDetected, OnGestureLost;
 
     private bool wasDetected = false;
 
     private void Update()
     {
-        if (palmReference == null) return;
+        if (!palmReference) return;
 
-        // 1. Check Alignment
-        // We compare the Reference's Green Arrow (up) with the World's Ceiling (Vector3.up)
-        // You can rotate the reference object in the editor to change what "Up" means relative to your hand.
-        float dot = Vector3.Dot(palmReference.up, Vector3.up);
-        
-        bool isDetected = dot > threshold;
+        bool isDetected = Vector3.Dot(palmReference.up, Vector3.up) > threshold;
 
-        // 2. Fire Events on State Change
-        if (isDetected && !wasDetected)
+        if (GameManager.Instance && !GameManager.Instance.teleportationEnabled)
         {
-            OnGestureDetected.Invoke();
-            wasDetected = true;
+            isDetected = true;
         }
-        else if (!isDetected && wasDetected)
+
+        if (isDetected != wasDetected)
         {
-            OnGestureLost.Invoke();
-            wasDetected = false;
+            wasDetected = isDetected;
+            (isDetected ? OnGestureDetected : OnGestureLost).Invoke();
         }
     }
-    
-    // Optional: Draw Gizmo to visualize the check
+
     private void OnDrawGizmos()
     {
-        if (palmReference == null) return;
-
-        // Draw the Reference's Up vector
+        if (!palmReference) return;
         Gizmos.color = wasDetected ? Color.green : Color.red;
         Gizmos.DrawRay(palmReference.position, palmReference.up * 0.2f);
     }

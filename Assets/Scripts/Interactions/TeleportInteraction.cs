@@ -10,7 +10,7 @@ public class TeleportInteraction : BaseInteraction
     public float delayTime = 1f;
     public float fadeDuration = 1f;
 
-    [SerializeField]XROrigin origin;
+    [SerializeField] XROrigin origin;
     [SerializeField] Image fade;
     public TeleportType teleportType;
     void Awake()
@@ -21,10 +21,17 @@ public class TeleportInteraction : BaseInteraction
 
     public override IEnumerator Process()
     {
+        if (teleportType == TeleportType.Object)
+        {
+            PathDirector.instance.SetTarget(targetLocation);
+            GameManager.Instance.teleportationEnabled = true;
+            FinishInteraction();
+            yield break;
+        }
         yield return Fade(Color.black);
 
         yield return new WaitForSeconds(delayTime);
-        Debug.Log("Teleporting...");
+        Debug.Log($"Teleporting to {targetLocation}");
         if (targetLocation != null)
         {
             origin.transform.position = targetLocation.position;
@@ -34,7 +41,7 @@ public class TeleportInteraction : BaseInteraction
 
         yield return Fade(Color.clear);
 
-        
+
         FinishInteraction();
     }
 
@@ -54,7 +61,7 @@ public class TeleportInteraction : BaseInteraction
 
     void OnDrawGizmos()
     {
-        if(targetLocation != null)
+        if (targetLocation != null)
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawWireSphere(targetLocation.position, 0.2f);

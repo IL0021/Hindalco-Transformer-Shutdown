@@ -10,7 +10,7 @@ using DG.Tweening;
 /// </summary>
 public class XRLeverNeutral : XRBaseInteractable
 {
-    const float k_LeverDeadZone = 0.1f; // Prevents rapid switching between on and off states when right in the middle
+    const float k_LeverDeadZone = 0.9f; // Prevents rapid switching between on and off states when right in the middle
 
     [SerializeField]
     [Tooltip("The object that is visually grabbed and manipulated")]
