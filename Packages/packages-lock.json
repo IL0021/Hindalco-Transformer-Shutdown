@@ -14,26 +14,6 @@
       "dependencies": {},
       "hash": "33135342e868201eb0d4cef821ecab90caca373e"
     },
-    "com.overdrive.shared": {
-      "version": "file:C:/Users/arpit/Downloads/com.overdrive.shared.tgz",
-      "depth": 0,
-      "source": "local-tarball",
-      "dependencies": {}
-    },
-    "com.overdrive.todo": {
-      "version": "file:C:/Users/arpit/Downloads/com.overdrive.todo.tgz",
-      "depth": 0,
-      "source": "local-tarball",
-      "dependencies": {
-        "com.overdrive.shared": "1.0.6"
-      }
-    },
-    "com.overdrive.toolset-manager": {
-      "version": "file:C:/Users/arpit/Downloads/com.overdrive.toolset-manager-1.1.0.tgz",
-      "depth": 0,
-      "source": "local-tarball",
-      "dependencies": {}
-    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,

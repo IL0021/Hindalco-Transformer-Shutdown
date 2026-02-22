@@ -46,6 +46,7 @@ public class MapInteraction : BaseInteraction
             StartCoroutine(teleportInteraction.Process());
             map.SetActive(false);
             MainCanvas.Instance.gameObject.SetActive(true);
+            GuidingArrow.Instance.ClearTarget();
             yield return new WaitForSeconds(teleportInteraction.delayTime);
             FinishInteraction();
             yield break;

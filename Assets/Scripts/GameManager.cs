@@ -263,6 +263,10 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(_activeInteraction.Process());
         }
+        else if (interactionData.interaction is EmptyInteraction empty)
+        {
+            StartCoroutine(_activeInteraction.Process());
+        }
         else if (interactionData.interaction is MapInteraction map)
         {
             string buttonText = "Open Map";

@@ -1,0 +1,7 @@
+TODO:
+Every teleport will have a teleportation area. Write a dfs for this.
+path arrows should be small with less distance also must be on only for teleport steps
+hand is directly causing acknowledgements to work.
+User is getting lost in PPE step. Also guiding arrow is directing somewhere.
+highlight name tags
+change all texts..

@@ -2,9 +2,6 @@
   "dependencies": {
     "com.inf.my-hierarchy": "https://github.com/INFGameDev/My-Hierarchy.git",
     "com.nobi.roundedcorners": "https://github.com/kirevdokimov/Unity-UI-Rounded-Corners.git",
-    "com.overdrive.shared": "file:C:/Users/arpit/Downloads/com.overdrive.shared.tgz",
-    "com.overdrive.todo": "file:C:/Users/arpit/Downloads/com.overdrive.todo.tgz",
-    "com.overdrive.toolset-manager": "file:C:/Users/arpit/Downloads/com.overdrive.toolset-manager-1.1.0.tgz",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.ai.navigation": "1.1.7",
     "com.unity.collab-proxy": "2.10.2",
