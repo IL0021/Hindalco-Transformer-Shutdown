@@ -55,7 +55,6 @@ public class PathDirector : MonoBehaviour
     [ContextMenu("Set Target")]
     public void SetTarget(Transform newTarget)
     {
-        // SetEndValue(target.position);
         target = newTarget;
         CalculatePath();
         MovePrefabAlongPath();
@@ -63,7 +62,7 @@ public class PathDirector : MonoBehaviour
     private void CalculatePath()
     {
         NavMesh.CalculatePath(start.position, target.position, NavMesh.AllAreas, path);
-        print("path calculator");
+        // print("path calculator");
     }
 
     // private void MovePrefabAlongPath()
@@ -140,5 +139,11 @@ public class PathDirector : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+    }
+
+    public void ClearTarget()
+    {
+        target = null;
+        ClearArrows();
     }
 }

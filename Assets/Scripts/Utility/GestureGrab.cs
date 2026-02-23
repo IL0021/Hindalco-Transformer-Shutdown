@@ -25,7 +25,7 @@ public class GestureGrab : MonoBehaviour
 
     void Update()
     {
-        if (!thumbTip || !indexTip) return;
+        if (!thumbTip || !indexTip || !GameManager.Instance.teleportationEnabled) return;
 
         float currentDistance = Vector3.Distance(thumbTip.position, indexTip.position);
 

@@ -22,14 +22,17 @@ public class MainCanvas : MonoBehaviour
         option3 = panel.transform.GetChildWithName("Option_3");
         option4 = panel.transform.GetChildWithName("Option_4");
     }
-
     public void ShowSingleButtonPanel(string title, string description, string buttonText, Action onClickAction)
     {
+        panel.gameObject.SetActive(true);
         if (!string.IsNullOrEmpty(title))
             panelTitle.text = title;
         panelDescription.text = description;
 
+        "Activating button 1".Print();
         option1.gameObject.SetActive(true);
+        "Active hogya BC".Print();
+
         option2.gameObject.SetActive(false);
         option3.gameObject.SetActive(false);
         option4.gameObject.SetActive(false);
@@ -43,6 +46,7 @@ public class MainCanvas : MonoBehaviour
 
     public void ShowFourOptionPanel(string title, string description, List<string> options, Action<int> onOptionSelected)
     {
+        panel.gameObject.SetActive(true);
         panelTitle.text = title;
         panelDescription.text = description;
 
@@ -67,6 +71,13 @@ public class MainCanvas : MonoBehaviour
         }
     }
 
+    public void ShowTitleAndDescription(string title, string description)
+    {
+        panel.gameObject.SetActive(true);
+        if (!string.IsNullOrEmpty(title))
+            panelTitle.text = title;
+        panelDescription.text = description;
+    }
 
     [ContextMenu("Test Single Button Panel")]
     public void TestSingleButtonPanel()
@@ -83,6 +94,7 @@ public class MainCanvas : MonoBehaviour
     public void ResetPanel()
     {
         option1.gameObject.SetActive(false);
+        "Setting button off".Print();
         option2.gameObject.SetActive(false);
         option3.gameObject.SetActive(false);
         option4.gameObject.SetActive(false);

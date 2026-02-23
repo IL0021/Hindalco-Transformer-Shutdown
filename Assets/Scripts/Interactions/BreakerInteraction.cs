@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Video;
 
 public class BreakerInteraction : BaseInteraction
 {
@@ -38,6 +37,7 @@ public class BreakerInteraction : BaseInteraction
 
     public override IEnumerator Process()
     {
+        GameManager.Instance.ToggleCanvasAnimation();
         if (GameManager.Instance.moduleMode == ModuleMode.Training)
         {
             GuidingArrow.Instance.SetTarget(lever.handle.transform);

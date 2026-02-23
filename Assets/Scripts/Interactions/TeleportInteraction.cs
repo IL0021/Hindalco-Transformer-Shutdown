@@ -9,7 +9,6 @@ public class TeleportInteraction : BaseInteraction
     public Transform targetLocation;
     public float delayTime = 1f;
     public float fadeDuration = 1f;
-
     [SerializeField] XROrigin origin;
     [SerializeField] Image fade;
     public TeleportType teleportType;
@@ -27,6 +26,12 @@ public class TeleportInteraction : BaseInteraction
             GameManager.Instance.teleportationEnabled = true;
             FinishInteraction();
             yield break;
+        }
+        else
+        {
+            "Arrows are being cleared".Print();
+            PathDirector.instance.ClearTarget();
+            GameManager.Instance.teleportationEnabled = false;
         }
         yield return Fade(Color.black);
 

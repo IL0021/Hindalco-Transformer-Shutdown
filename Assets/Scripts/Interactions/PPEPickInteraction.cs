@@ -65,6 +65,8 @@ public class PPEPickInteraction : BaseInteraction
         "All items picked up".Print();
         FinishInteraction();
         GameManager.Instance.PlayNextInteraction();
+        if (GuidingArrow.Instance != null) GuidingArrow.Instance.SetTarget(MainCanvas.Instance.transform);
+
         // GameManager.Instance.NextButton.gameObject.SetActive(false);
     }
 
@@ -78,10 +80,10 @@ public class PPEPickInteraction : BaseInteraction
             renderer.material = matInstance;
         }
         float timer = 0;
-        while(timer < 0.5f)
+        while (timer < 0.5f)
         {
             timer += Time.deltaTime;
-            matInstance.SetFloat("_Alpha", Mathf.Lerp(1,0, timer/2f));
+            matInstance.SetFloat("_Alpha", Mathf.Lerp(1, 0, timer / 2f));
             yield return null;
         }
         matInstance.SetFloat("_Alpha", 0);

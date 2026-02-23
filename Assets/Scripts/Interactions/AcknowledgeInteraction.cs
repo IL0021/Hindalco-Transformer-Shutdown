@@ -13,6 +13,7 @@ public class AcknowledgeInteraction : BaseInteraction
     public Transform acknowledgeObjectTransform;
     public bool skipButton = false;
     public GameObject pokeAnim;
+    public bool setTeleportOn = false;
 
     // public GameObject confirmationObject;
     void Awake()
@@ -26,6 +27,7 @@ public class AcknowledgeInteraction : BaseInteraction
     {
         if (acknowledgeObjectTransform != null)
         {
+            if(setTeleportOn) GameManager.Instance.teleportationEnabled = true;
             GameObject ackObj = Instantiate(acknowledgeObject, acknowledgeObjectTransform.position, acknowledgeObjectTransform.rotation, acknowledgeObjectTransform);
             var ackGrabInteractable = ackObj.GetComponent<XRGrabInteractable>();
             ackGrabInteractable.hoverEntered.AddListener((selectEnterEvent) =>
@@ -47,6 +49,7 @@ public class AcknowledgeInteraction : BaseInteraction
                 GuidingArrow.Instance.ClearTarget();
                 Destroy(pokeHand);
             }
+            if(setTeleportOn) GameManager.Instance.teleportationEnabled = false;
         }
 
         if (!skipButton)

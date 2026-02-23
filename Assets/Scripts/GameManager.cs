@@ -228,22 +228,10 @@ public class GameManager : MonoBehaviour
     {
         if (interactionData.interaction is TeleportInteraction teleportInteraction)
         {
-            // string text;
-            // if (teleportInteraction.teleportType == TeleportType.Location)
-            // {
-            //     text = (stepIndex == 0 && interactionIndex == 0)
-            //         ? $"First, you have to go to <color=blue>{interactionData.target}</color>."
-            //         : $"For the next step, you have to go to <color=blue>{interactionData.target}</color>.";
-            // }
-            // else
-            // {
-            //     text = $"Now you have to go to <color=blue>{interactionData.target}</color>.";
-            // }
-
             MainCanvas.Instance.ShowSingleButtonPanel(interactionData.interactionName, interactionData.interactionDescription, $"Go to {interactionData.target}", () =>
             {
+                MainCanvas.Instance.ResetPanel();
                 StartCoroutine(_activeInteraction.Process());
-                MainCanvas.Instance.option1.gameObject.SetActive(false);
             });
         }
         else if (interactionData.interaction is PPEPickInteraction ppe)
@@ -252,11 +240,9 @@ public class GameManager : MonoBehaviour
             "controll is here".Print();
             MainCanvas.Instance.ShowSingleButtonPanel(interactionData.interactionName, interactionData.interactionDescription, buttonText, () =>
             {
+                MainCanvas.Instance.ResetPanel();
                 StartCoroutine(_activeInteraction.Process());
-                MainCanvas.Instance.option1.gameObject.SetActive(false);
-
                 teleportationEnabled = true;
-                // ToggleCanvasAnimation();
             });
         }
         else if (interactionData.interaction is AcknowledgeInteraction ack)
@@ -265,6 +251,7 @@ public class GameManager : MonoBehaviour
         }
         else if (interactionData.interaction is EmptyInteraction empty)
         {
+            MainCanvas.Instance.ShowTitleAndDescription(interactionData.interactionName, interactionData.interactionDescription);
             StartCoroutine(_activeInteraction.Process());
         }
         else if (interactionData.interaction is MapInteraction map)
@@ -273,19 +260,17 @@ public class GameManager : MonoBehaviour
             if (map.buttonDict[interactionData.target] == null) buttonText = $"Go to {interactionData.target}";
             MainCanvas.Instance.ShowSingleButtonPanel(interactionData.interactionName, interactionData.interactionDescription, buttonText, () =>
             {
+                MainCanvas.Instance.ResetPanel();
                 StartCoroutine(_activeInteraction.Process());
-                MainCanvas.Instance.option1.gameObject.SetActive(false);
-                // ToggleCanvasAnimation();
             });
         }
         else
         {
-            // string text = $"You are at <color=blue>{interactionData.target}</color>. {interactionData.interactionDescription}";
+
             MainCanvas.Instance.ShowSingleButtonPanel(interactionData.interactionName, interactionData.interactionDescription, "Proceed to Interaction", () =>
             {
+                MainCanvas.Instance.ResetPanel();
                 StartCoroutine(_activeInteraction.Process());
-                MainCanvas.Instance.option1.gameObject.SetActive(false);
-                // ToggleCanvasAnimation();
             });
         }
     }

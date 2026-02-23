@@ -24,6 +24,7 @@ public class MapInteraction : BaseInteraction
 #endif
     }
 
+    Tween animateButton;
     public override IEnumerator Process()
     {
         transform.position = MainCanvas.Instance.transform.position;
@@ -38,7 +39,7 @@ public class MapInteraction : BaseInteraction
 
         if (concernedButton != null && GameManager.Instance.moduleMode == ModuleMode.Training)
         {
-            concernedButton.GetComponent<Image>().DOColor(Color.green, 0.5f).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo);
+            animateButton = concernedButton.GetComponent<Image>().DOColor(Color.green, 0.5f).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo);
         }
 
         if (concernedButton == null)
@@ -55,15 +56,18 @@ public class MapInteraction : BaseInteraction
         concernedButton.onClick.AddListener(
             () =>
             {
-                StartCoroutine(teleportInteraction.Process());
                 isButtonPressed = true;
+                animateButton.Kill();
+                concernedButton.GetComponent<Image>().color = new Color32(94, 166, 204, 255);
             }
         );
 
         yield return new WaitUntil(() => isButtonPressed);
+        
+        yield return StartCoroutine(teleportInteraction.Process());
+        FinishInteraction();
 
         map.SetActive(false);
         MainCanvas.Instance.gameObject.SetActive(true);
-        FinishInteraction();
     }
 }
